@@ -12,14 +12,15 @@ KERNEL_BRANCH=temp
 OOTM_REPO=$TOPDIR/tegra-oot
 OOTM_BRANCH=temp
 
-export DEBIAN_FRONTEND=noninteractive
-export DEBFULLNAME="Tegra Builder"
-export DEBEMAIL="tegra-builder@builder.local"
-
 ARCH=arm64
 
 # Install dependencies
 sudo apt -y install git build-essential devscripts
+
+# Export variables needed for Debian packaging operations
+export DEBIAN_FRONTEND=noninteractive
+export DEBFULLNAME="Tegra Builder"
+export DEBEMAIL="tegra-builder@builder.local"
 
 # Start OOTM
 
