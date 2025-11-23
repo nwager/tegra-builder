@@ -1,16 +1,33 @@
 #!/bin/bash
-#
-# Builds the tegra kernel with OOTM like a daily build.
-#
 
 set -e
 
-TOPDIR="$(realpath $(dirname $0))"
+usage() {
+	cat <<EOF
+Builds the tegra kernel with OOTM like a daily build.
 
-KERNEL_REPO=$TOPDIR/kernel-recipe
-KERNEL_BRANCH=temp
-OOTM_REPO=$TOPDIR/tegra-oot
-OOTM_BRANCH=temp
+Must set the following variables before running:
+  OOTM_REPO     - Out-of-tree modules DKMS package repo to clone.
+  OOTM_BRANCH   - Out-of-tree modules DKMS package repo branch to checkout.
+  KERNEL_REPO   - Kernel git repo to clone.
+  KERNEL_BRANCH - Kernel git repo branch to checkout.
+EOF
+	exit 1
+}
+
+if [ -z "$OOTM_REPO" ] \
+   || [ -z "$OOTM_BRANCH" ] \
+   || [ -z "$KERNEL_REPO" ] \
+   || [ -z "$KERNEL_BRANCH" ]; then
+	usage
+fi
+
+exit
+
+TOPDIR=$PWD
+
+KERNEL_REPO_NAME=$TOPDIR/kernel
+OOTM_REPO_NAME=$TOPDIR/ootm
 
 ARCH=arm64
 
@@ -24,7 +41,10 @@ export DEBEMAIL="tegra-builder@builder.local"
 
 # Start OOTM
 
-cd $OOTM_REPO
+if ! [ -d "$OOTM_REPO_NAME" ]; then
+	git clone "$OOTM_REPO" -b "$OOTM_BRANCH" --single-branch "$OOTM_REPO_NAME"
+fi
+cd $OOTM_REPO_NAME
 git checkout $OOTM_BRANCH
 
 ootm_srcpkg="$(dpkg-parsechangelog -SSource)"
@@ -51,7 +71,10 @@ echo "OOTM dkms packages built successfully"
 
 # Start kernel
 
-cd $KERNEL_REPO
+if ! [ -d "$KERNEL_REPO_NAME" ]; then
+	git clone "$KERNEL_REPO" -b "$KERNEL_BRANCH" --single-branch "$KERNEL_REPO_NAME"
+fi
+cd $KERNEL_REPO_NAME
 git checkout $KERNEL_BRANCH
 
 # Generate dkms-versions
