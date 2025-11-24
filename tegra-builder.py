@@ -176,6 +176,7 @@ class TegraBuilder:
             print("Kernel packages built successfully.")
 
     def build(self):
+        self._install_dependencies()
         self._initialize_repos()
         self._build_ootm()
         self._build_kernel()
