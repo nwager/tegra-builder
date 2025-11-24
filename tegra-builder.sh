@@ -96,7 +96,7 @@ do
 done
 
 # Build the correct OOTM branch
-sed -i -E "s/BRANCHES=.*/BRANCHES=$ootm_branch/" $DEBIAN/rules.d/$ARCH.mk
+sed -i "s/BRANCHES=.*/BRANCHES=$ootm_branch/" $DEBIAN/rules.d/$ARCH.mk
 
 kver="$(dpkg-parsechangelog -SVersion | sed 's/-.*//')"
 abi="$(date +"%Y%m%d%H%M" --utc).1"
