@@ -104,6 +104,7 @@ class TegraBuilder:
         set_repo(self.kernel_path, self.kernel_repo, self.kernel_branch)
 
     def _install_dependencies(self):
+        run(['sudo', 'apt', '-y', 'update'])
         run(['sudo', 'apt', '-y', 'install',
              'git', 'build-essential', 'devscripts'])
 
