@@ -161,8 +161,13 @@ class TegraBuilder:
             kernel_version = run_capture(['dpkg-parsechangelog', '-S', 'Version', '-l', f"{debian_path}/changelog"])
             timestamp = datetime.now().strftime("%Y%m%d%H%M")
             kernel_version = re.compile(r'-.*').sub(f"-{timestamp}.1", kernel_version)
-            run(['dch', '-v', kernel_version, "Kernel development build"])
-            run(['dch', '-r', self.release])
+            # If debian/changelog is tracked, assume we should use that.
+            # Otherwise, use the derivative directory.
+            chfile = "debian/changelog"
+            if not os.path.isfile(chfile):
+                chfile = f"{debian_path}/changelog"
+            run(['dch', '-c', chfile, '-v', kernel_version, "Kernel development build"])
+            run(['dch', '-c', chfile, '-r', self.release])
 
             run(['fakeroot', 'debian/rules', 'clean'])
             run(['sudo', 'apt', '-y', 'build-dep', '.'])
