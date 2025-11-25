@@ -94,8 +94,8 @@ class TegraBuilder:
             run(['git', 'clone', repo, '-b', branch, '--single-branch', path])
 
     def _install_dependencies(self):
-        run(['sudo', 'apt', '-y', 'update'])
-        run(['sudo', 'apt', '-y', 'install',
+        run(['sudo', '-E', 'apt', '-y', 'update'])
+        run(['sudo', '-E', 'apt', '-y', 'install',
              'git', 'build-essential', 'devscripts'])
 
     def _init_ootm(self):
@@ -116,7 +116,7 @@ class TegraBuilder:
 
             # Need to generate control file so apt build-dep works
             run(['fakeroot', 'debian/rules', 'debian/control'])
-            run(['sudo', 'apt', '-y', 'build-dep', '.'])
+            run(['sudo', '-E', 'apt', '-y', 'build-dep', '.'])
 
             run(['fakeroot', 'debian/rules', 'clean'])
             run(['debuild', '-b', '--no-sign'])
@@ -170,7 +170,7 @@ class TegraBuilder:
             run(['dch', '-c', chfile, '-r', self.release])
 
             run(['fakeroot', 'debian/rules', 'clean'])
-            run(['sudo', 'apt', '-y', 'build-dep', '.'])
+            run(['sudo', '-E', 'apt', '-y', 'build-dep', '.'])
             run(['debuild', '-b', '--no-sign'])
 
             with open("debian/control", 'r') as f:
