@@ -157,7 +157,7 @@ class TegraBuilder:
             run(['sed', '-i', '-E', f"s/^(BRANCHES=).*$/\\1{self.tegra_branch}/", f"{debian_path}/rules.d/{self.arch}.mk"])
 
             # Update changelog
-            kernel_version = run_capture(['dpkg-parsechangelog', '-S', 'Version'])
+            kernel_version = run_capture(['dpkg-parsechangelog', '-S', 'Version', '-l', f"{debian_path}/changelog"])
             timestamp = datetime.now().strftime("%Y%m%d%H%M")
             kernel_version = re.compile(r'-.*').sub(f"-{timestamp}.1", kernel_version)
             run(['dch', '-v', kernel_version, "Kernel development build"])
