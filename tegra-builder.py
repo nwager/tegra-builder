@@ -75,8 +75,9 @@ class TegraBuilder:
         # matches the host arch
         self.arch = run_capture(['dpkg', '--print-architecture'])
 
+        self.cwd = os.getcwd()
+
         # Packaging fields to be set dynamically during build process
-        self.cwd = ''
         self.release = ''
         self.tegra_branch = ''
         self.ootm_version = ''
