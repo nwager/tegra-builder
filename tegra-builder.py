@@ -83,30 +83,23 @@ class TegraBuilder:
         self.ootm_binpkgs = []
         self.kernel_binpkgs = []
 
-    def _initialize_repos(self):
-        # Save cwd for repo operations
-        self.cwd = os.getcwd()
-
-        # Initialize repos
-        def set_repo(path, repo, branch):
-            if os.path.isdir(path):
-                with cd(path):
-                    run(['git', 'restore', '.'])
-                    run(['git', 'clean', '-xdf'])
-                    run(['git', 'checkout', branch])
-            else:
-                run(['git', 'clone', repo, '-b', branch, '--single-branch', path])
-
-        self.ootm_path = f"{self.cwd}/{OOTM_REPO_DIR}"
-        set_repo(self.ootm_path, self.ootm_repo, self.ootm_branch)
-
-        self.kernel_path = f"{self.cwd}/{KERNEL_REPO_DIR}"
-        set_repo(self.kernel_path, self.kernel_repo, self.kernel_branch)
+    def _init_repo(self, path, repo, branch):
+        if os.path.isdir(path):
+            with cd(path):
+                run(['git', 'restore', '.'])
+                run(['git', 'clean', '-xdf'])
+                run(['git', 'checkout', branch])
+        else:
+            run(['git', 'clone', repo, '-b', branch, '--single-branch', path])
 
     def _install_dependencies(self):
         run(['sudo', 'apt', '-y', 'update'])
         run(['sudo', 'apt', '-y', 'install',
              'git', 'build-essential', 'devscripts'])
+
+    def _init_ootm(self):
+        self.ootm_path = f"{self.cwd}/{OOTM_REPO_DIR}"
+        self._init_repo(self.ootm_path, self.ootm_repo, self.ootm_branch)
 
     def _build_ootm(self):
         with cd(self.ootm_path):
@@ -132,6 +125,10 @@ class TegraBuilder:
                 self.ootm_binpkgs = pattern.findall(f.read())
 
             print("OOTM dkms packages built successfully.")
+
+    def _init_kernel(self):
+        self.kernel_path = f"{self.cwd}/{KERNEL_REPO_DIR}"
+        self._init_repo(self.kernel_path, self.kernel_repo, self.kernel_branch)
 
     def _build_kernel(self):
         # Generate dkms-versions file
@@ -178,8 +175,9 @@ class TegraBuilder:
 
     def build(self):
         self._install_dependencies()
-        self._initialize_repos()
+        self._init_ootm()
         self._build_ootm()
+        self._init_kernel()
         self._build_kernel()
 
 
